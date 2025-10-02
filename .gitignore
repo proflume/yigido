@@ -1,0 +1,39 @@
+# General
+.DS_Store
+*.log
+*.tmp
+*.swp
+.env
+.env.*
+.venv/
+venv/
+dist/
+build/
+coverage/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.python-version
+
+# JS/TS
+*.tsbuildinfo
+
+# Docker
+**/.docker/
+.docker-compose.override.yml
+
+# Frontend build
+/frontend/dist/
+
+# Alembic
+/backend/alembic/versions/*.pyc
