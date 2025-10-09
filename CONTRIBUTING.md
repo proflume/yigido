@@ -1,170 +1,174 @@
-# Contributing to TaskFlow
+# Contributing to Task Manager
 
-Thank you for your interest in contributing to TaskFlow! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to this project! This document provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
-Please be respectful and constructive in all interactions. We aim to foster an inclusive and welcoming environment.
+- Be respectful and inclusive
+- Provide constructive feedback
+- Focus on what is best for the community
+- Show empathy towards others
 
 ## How to Contribute
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in Issues
-2. If not, create a new issue with:
+1. **Check existing issues** to avoid duplicates
+2. **Create a new issue** with:
    - Clear, descriptive title
    - Steps to reproduce
    - Expected vs actual behavior
    - Screenshots if applicable
-   - Environment details (OS, browser, versions)
+   - Environment details (OS, browser, etc.)
 
 ### Suggesting Features
 
-1. Check existing feature requests
-2. Create a new issue with:
-   - Clear description of the feature
-   - Use cases and benefits
-   - Potential implementation approach
+1. **Check existing feature requests**
+2. **Create a new issue** describing:
+   - The problem you're trying to solve
+   - Your proposed solution
+   - Alternative solutions considered
+   - Additional context
 
 ### Pull Requests
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Write or update tests
-5. Ensure all tests pass
-6. Commit with clear messages
-7. Push to your fork
-8. Open a Pull Request
+1. **Fork the repository**
+2. **Create a feature branch** from `main`
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make your changes** following our coding standards
+
+4. **Write/update tests** for your changes
+
+5. **Run tests** to ensure everything passes
+   ```bash
+   make test-backend
+   make test-frontend
+   ```
+
+6. **Commit your changes** with clear messages
+   ```bash
+   git commit -m "feat: add new feature"
+   ```
+
+   Follow conventional commits:
+   - `feat:` New feature
+   - `fix:` Bug fix
+   - `docs:` Documentation
+   - `style:` Formatting
+   - `refactor:` Code refactoring
+   - `test:` Tests
+   - `chore:` Maintenance
+
+7. **Push to your fork**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+8. **Create a Pull Request** with:
+   - Clear description of changes
+   - Link to related issues
+   - Screenshots if UI changes
 
 ## Development Setup
 
-See [README.md](README.md) for detailed setup instructions.
-
-### Quick Start
+### Backend
 
 ```bash
-# Backend
 cd backend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-flask db upgrade
-python wsgi.py
+python manage.py migrate
+```
 
-# Frontend
+### Frontend
+
+```bash
 cd frontend
 npm install
-npm run dev
 ```
 
 ## Coding Standards
 
 ### Python (Backend)
 
-- Follow PEP 8 style guide
-- Use type hints where appropriate
-- Write docstrings for functions and classes
-- Maximum line length: 100 characters
+- Follow **PEP 8** style guide
+- Use **Black** for formatting
+- Use **isort** for import sorting
+- Maximum line length: 120 characters
+- Add docstrings to functions and classes
 
 ```python
-def create_task(title: str, description: str) -> Task:
+def example_function(param1: str, param2: int) -> bool:
     """
-    Create a new task.
+    Short description of function.
     
     Args:
-        title: Task title
-        description: Task description
+        param1: Description of param1
+        param2: Description of param2
     
     Returns:
-        Created task object
+        Description of return value
     """
-    # Implementation
+    pass
 ```
 
 ### TypeScript (Frontend)
 
-- Use TypeScript strict mode
-- Define interfaces for props and data structures
+- Use **TypeScript** for type safety
+- Follow **ESLint** rules
 - Use functional components with hooks
-- Follow React best practices
+- Add JSDoc comments for complex functions
 
 ```typescript
-interface TaskProps {
-  task: Task;
-  onUpdate: (task: Task) => void;
-}
-
-const TaskCard: React.FC<TaskProps> = ({ task, onUpdate }) => {
+/**
+ * Fetches tasks from the API
+ * @param params - Query parameters
+ * @returns Promise with task list
+ */
+async function fetchTasks(params?: TaskParams): Promise<Task[]> {
   // Implementation
-};
+}
 ```
 
-### Commit Messages
+### Testing
 
-Follow conventional commits:
+- Write tests for new features
+- Maintain test coverage above 80%
+- Use descriptive test names
+- Follow AAA pattern (Arrange, Act, Assert)
 
-```
-type(scope): subject
-
-body (optional)
-
-footer (optional)
-```
-
-Types:
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-
-Examples:
-```
-feat(auth): add password reset functionality
-fix(tasks): resolve duplicate task creation bug
-docs(api): update authentication endpoint documentation
-```
-
-## Testing
-
-### Backend Tests
-
-```bash
-cd backend
-pytest
-pytest --cov=app tests/
-```
-
-All new features must include tests.
-
-### Frontend Tests
-
-```bash
-cd frontend
-npm test
-npm run test:coverage
+```python
+def test_user_registration_success():
+    # Arrange
+    payload = {...}
+    
+    # Act
+    response = client.post('/api/v1/auth/users/', payload)
+    
+    # Assert
+    assert response.status_code == 201
 ```
 
 ## Documentation
 
-- Update README.md if adding new features
-- Update API.md for API changes
-- Add inline comments for complex logic
-- Update architecture docs for structural changes
+- Update README.md if adding features
+- Update API documentation for API changes
+- Add comments for complex logic
+- Update type definitions
 
-## Code Review Process
+## Review Process
 
-1. All PRs require review before merging
-2. Address reviewer feedback
-3. Ensure CI/CD checks pass
-4. Squash commits if requested
-5. Maintain a clean git history
+1. Automated tests must pass
+2. Code review by maintainers
+3. Address review feedback
+4. Merge once approved
 
 ## Questions?
 
-Feel free to open an issue for any questions or clarifications needed.
+Feel free to open an issue for questions or reach out to the maintainers.
 
 Thank you for contributing! 🎉

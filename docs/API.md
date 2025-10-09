@@ -1,15 +1,23 @@
 # API Documentation
 
+Complete API reference for the Task Manager application.
+
 ## Base URL
+
 ```
-http://localhost:5000/api
+Development: http://localhost:8000/api/v1
+Production: https://your-domain.com/api/v1
 ```
 
 ## Authentication
 
-All authenticated endpoints require a Bearer token in the Authorization header:
+All API requests (except registration and login) require authentication using JWT tokens.
+
+### Headers
+
 ```
 Authorization: Bearer <access_token>
+Content-Type: application/json
 ```
 
 ---
@@ -20,14 +28,16 @@ Authorization: Bearer <access_token>
 
 Create a new user account.
 
-**Endpoint:** `POST /auth/register`
+**Endpoint:** `POST /auth/users/`
+
+**Permission:** Public
 
 **Request Body:**
 ```json
 {
   "email": "user@example.com",
-  "username": "johndoe",
-  "password": "SecurePass123",
+  "password": "securepassword123",
+  "password_confirm": "securepassword123",
   "first_name": "John",
   "last_name": "Doe"
 }
@@ -40,56 +50,49 @@ Create a new user account.
   "user": {
     "id": 1,
     "email": "user@example.com",
-    "username": "johndoe",
     "first_name": "John",
     "last_name": "Doe",
+    "full_name": "John Doe",
+    "bio": "",
+    "avatar": null,
     "is_active": true,
-    "is_admin": false,
-    "created_at": "2024-01-01T00:00:00"
-  },
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+    "created_at": "2024-01-01T10:00:00Z",
+    "updated_at": "2024-01-01T10:00:00Z"
+  }
 }
 ```
 
-**Error Responses:**
-- `400 Bad Request` - Invalid input data
-- `409 Conflict` - Email or username already exists
+**Errors:**
+- `400 Bad Request`: Validation error (email already exists, passwords don't match, etc.)
 
 ---
 
 ### Login
 
-Authenticate and receive access tokens.
+Obtain JWT access and refresh tokens.
 
-**Endpoint:** `POST /auth/login`
+**Endpoint:** `POST /auth/token/`
+
+**Permission:** Public
 
 **Request Body:**
 ```json
 {
-  "username": "johndoe",
-  "password": "SecurePass123"
+  "email": "user@example.com",
+  "password": "securepassword123"
 }
 ```
 
 **Response:** `200 OK`
 ```json
 {
-  "message": "Login successful",
-  "user": {
-    "id": 1,
-    "username": "johndoe",
-    "email": "user@example.com"
-  },
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc..."
 }
 ```
 
-**Error Responses:**
-- `400 Bad Request` - Missing credentials
-- `401 Unauthorized` - Invalid credentials
-- `403 Forbidden` - Account disabled
+**Errors:**
+- `401 Unauthorized`: Invalid credentials
 
 ---
 
@@ -97,160 +100,65 @@ Authenticate and receive access tokens.
 
 Get a new access token using refresh token.
 
-**Endpoint:** `POST /auth/refresh`
+**Endpoint:** `POST /auth/token/refresh/`
 
-**Headers:**
-```
-Authorization: Bearer <refresh_token>
-```
-
-**Response:** `200 OK`
-```json
-{
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
-}
-```
-
----
-
-### Logout
-
-Invalidate the current access token.
-
-**Endpoint:** `POST /auth/logout`
-
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
-
-**Response:** `200 OK`
-```json
-{
-  "message": "Logout successful"
-}
-```
-
----
-
-### Get Current User
-
-Retrieve the authenticated user's profile.
-
-**Endpoint:** `GET /auth/me`
-
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
-
-**Response:** `200 OK`
-```json
-{
-  "user": {
-    "id": 1,
-    "username": "johndoe",
-    "email": "user@example.com",
-    "first_name": "John",
-    "last_name": "Doe",
-    "avatar_url": "https://example.com/avatar.jpg",
-    "is_active": true,
-    "created_at": "2024-01-01T00:00:00",
-    "last_login": "2024-01-01T12:00:00"
-  }
-}
-```
-
----
-
-## User Endpoints
-
-### Get Users
-
-Retrieve a paginated list of users.
-
-**Endpoint:** `GET /users`
-
-**Query Parameters:**
-- `page` (integer, default: 1) - Page number
-- `per_page` (integer, default: 20) - Items per page
-- `search` (string, optional) - Search by username or email
-
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
-
-**Response:** `200 OK`
-```json
-{
-  "users": [
-    {
-      "id": 1,
-      "username": "johndoe",
-      "first_name": "John",
-      "last_name": "Doe",
-      "avatar_url": "https://example.com/avatar.jpg",
-      "is_active": true,
-      "created_at": "2024-01-01T00:00:00"
-    }
-  ],
-  "total": 50,
-  "pages": 3,
-  "current_page": 1
-}
-```
-
----
-
-### Get User by ID
-
-Retrieve a specific user's profile.
-
-**Endpoint:** `GET /users/{user_id}`
-
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
-
-**Response:** `200 OK`
-```json
-{
-  "user": {
-    "id": 1,
-    "username": "johndoe",
-    "first_name": "John",
-    "last_name": "Doe",
-    "avatar_url": "https://example.com/avatar.jpg",
-    "is_active": true,
-    "created_at": "2024-01-01T00:00:00"
-  }
-}
-```
-
-**Error Responses:**
-- `404 Not Found` - User not found
-
----
-
-### Update Profile
-
-Update the authenticated user's profile.
-
-**Endpoint:** `PUT /users/profile`
-
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
+**Permission:** Public
 
 **Request Body:**
 ```json
 {
+  "refresh": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+}
+```
+
+---
+
+### Get User Profile
+
+Get current user's profile.
+
+**Endpoint:** `GET /auth/users/me/`
+
+**Permission:** Authenticated
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "email": "user@example.com",
   "first_name": "John",
   "last_name": "Doe",
-  "avatar_url": "https://example.com/new-avatar.jpg"
+  "full_name": "John Doe",
+  "bio": "Software developer",
+  "avatar": "/media/avatars/user1.jpg",
+  "is_active": true,
+  "created_at": "2024-01-01T10:00:00Z",
+  "updated_at": "2024-01-01T10:00:00Z"
+}
+```
+
+---
+
+### Update User Profile
+
+Update current user's profile.
+
+**Endpoint:** `PATCH /auth/users/me/`
+
+**Permission:** Authenticated
+
+**Request Body:**
+```json
+{
+  "first_name": "Jane",
+  "bio": "Full-stack developer"
 }
 ```
 
@@ -260,95 +168,151 @@ Authorization: Bearer <access_token>
   "message": "Profile updated successfully",
   "user": {
     "id": 1,
-    "username": "johndoe",
     "email": "user@example.com",
-    "first_name": "John",
+    "first_name": "Jane",
     "last_name": "Doe",
-    "avatar_url": "https://example.com/new-avatar.jpg"
+    "full_name": "Jane Doe",
+    "bio": "Full-stack developer",
+    "avatar": null,
+    "is_active": true,
+    "created_at": "2024-01-01T10:00:00Z",
+    "updated_at": "2024-01-01T11:00:00Z"
   }
 }
 ```
+
+---
+
+### Change Password
+
+Change current user's password.
+
+**Endpoint:** `POST /auth/users/change_password/`
+
+**Permission:** Authenticated
+
+**Request Body:**
+```json
+{
+  "old_password": "oldpassword123",
+  "new_password": "newpassword123",
+  "new_password_confirm": "newpassword123"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "message": "Password changed successfully"
+}
+```
+
+**Errors:**
+- `400 Bad Request`: Old password incorrect or new passwords don't match
 
 ---
 
 ## Task Endpoints
 
-### Get Tasks
+### List Tasks
 
-Retrieve a filtered and paginated list of tasks for the authenticated user.
+Get all tasks for the current user with optional filtering.
 
-**Endpoint:** `GET /tasks`
+**Endpoint:** `GET /tasks/`
+
+**Permission:** Authenticated
 
 **Query Parameters:**
-- `page` (integer, default: 1) - Page number
-- `per_page` (integer, default: 20) - Items per page
-- `status` (string, optional) - Filter by status: `pending`, `in_progress`, `completed`, `cancelled`
-- `priority` (string, optional) - Filter by priority: `low`, `medium`, `high`, `urgent`
-- `search` (string, optional) - Search in task titles
+- `status` (optional): Filter by status (`todo`, `in_progress`, `done`)
+- `priority` (optional): Filter by priority (`low`, `medium`, `high`, `urgent`)
+- `category` (optional): Filter by category ID
+- `overdue` (optional): Filter overdue tasks (`true`)
+- `search` (optional): Search in title and description
+- `ordering` (optional): Order by field (e.g., `-created_at`, `due_date`)
+- `page` (optional): Page number for pagination
+- `page_size` (optional): Items per page
 
-**Headers:**
+**Examples:**
 ```
-Authorization: Bearer <access_token>
+GET /tasks/?status=in_progress
+GET /tasks/?priority=high&overdue=true
+GET /tasks/?search=project&ordering=-created_at
 ```
 
 **Response:** `200 OK`
 ```json
 {
-  "tasks": [
+  "count": 45,
+  "next": "http://localhost:8000/api/v1/tasks/?page=2",
+  "previous": null,
+  "results": [
     {
       "id": 1,
-      "title": "Complete project",
-      "description": "Finish the full stack application",
+      "title": "Complete project documentation",
       "status": "in_progress",
       "priority": "high",
-      "due_date": "2024-12-31T23:59:59",
-      "completed_at": null,
-      "user_id": 1,
-      "created_at": "2024-01-01T00:00:00",
-      "updated_at": "2024-01-02T00:00:00",
-      "tags": ["work", "important"]
+      "category_name": "Work",
+      "due_date": "2024-12-31T23:59:59Z",
+      "is_overdue": false,
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
     }
-  ],
-  "total": 25,
-  "pages": 2,
-  "current_page": 1
+  ]
 }
 ```
 
 ---
 
-### Get Task by ID
+### Get Task Detail
 
-Retrieve a specific task.
+Get a specific task by ID.
 
-**Endpoint:** `GET /tasks/{task_id}`
+**Endpoint:** `GET /tasks/{id}/`
 
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
+**Permission:** Authenticated (own tasks only)
 
 **Response:** `200 OK`
 ```json
 {
-  "task": {
+  "id": 1,
+  "title": "Complete project documentation",
+  "description": "Write comprehensive docs for the project",
+  "status": "in_progress",
+  "priority": "high",
+  "user": {
     "id": 1,
-    "title": "Complete project",
-    "description": "Finish the full stack application",
-    "status": "in_progress",
-    "priority": "high",
-    "due_date": "2024-12-31T23:59:59",
-    "completed_at": null,
-    "user_id": 1,
-    "created_at": "2024-01-01T00:00:00",
-    "updated_at": "2024-01-02T00:00:00",
-    "tags": ["work", "important"]
-  }
+    "email": "user@example.com",
+    "full_name": "John Doe"
+  },
+  "category": {
+    "id": 1,
+    "name": "Work",
+    "description": "Work-related tasks",
+    "color": "#3B82F6"
+  },
+  "due_date": "2024-12-31T23:59:59Z",
+  "completed_at": null,
+  "is_overdue": false,
+  "comments": [
+    {
+      "id": 1,
+      "user": {
+        "id": 1,
+        "email": "user@example.com",
+        "full_name": "John Doe"
+      },
+      "text": "Making good progress!",
+      "created_at": "2024-01-02T10:00:00Z",
+      "updated_at": "2024-01-02T10:00:00Z"
+    }
+  ],
+  "created_at": "2024-01-01T10:00:00Z",
+  "updated_at": "2024-01-01T10:00:00Z"
 }
 ```
 
-**Error Responses:**
-- `404 Not Found` - Task not found
+**Errors:**
+- `404 Not Found`: Task doesn't exist or doesn't belong to user
 
 ---
 
@@ -356,43 +320,55 @@ Authorization: Bearer <access_token>
 
 Create a new task.
 
-**Endpoint:** `POST /tasks`
+**Endpoint:** `POST /tasks/`
 
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
+**Permission:** Authenticated
 
 **Request Body:**
 ```json
 {
-  "title": "Complete project",
-  "description": "Finish the full stack application",
-  "status": "in_progress",
-  "priority": "high",
-  "due_date": "2024-12-31T23:59:59Z",
-  "tags": ["work", "important"]
+  "title": "New task",
+  "description": "Task description",
+  "status": "todo",
+  "priority": "medium",
+  "category": 1,
+  "due_date": "2024-12-31T23:59:59Z"
 }
 ```
 
 **Response:** `201 Created`
 ```json
 {
-  "message": "Task created successfully",
-  "task": {
+  "id": 2,
+  "title": "New task",
+  "description": "Task description",
+  "status": "todo",
+  "priority": "medium",
+  "user": {
     "id": 1,
-    "title": "Complete project",
-    "description": "Finish the full stack application",
-    "status": "in_progress",
-    "priority": "high",
-    "due_date": "2024-12-31T23:59:59",
-    "tags": ["work", "important"]
-  }
+    "email": "user@example.com",
+    "full_name": "John Doe"
+  },
+  "category": {
+    "id": 1,
+    "name": "Work",
+    "color": "#3B82F6"
+  },
+  "due_date": "2024-12-31T23:59:59Z",
+  "completed_at": null,
+  "is_overdue": false,
+  "comments": [],
+  "created_at": "2024-01-03T10:00:00Z",
+  "updated_at": "2024-01-03T10:00:00Z"
 }
 ```
 
-**Error Responses:**
-- `400 Bad Request` - Missing or invalid data
+**Validation:**
+- `title`: Required, max 255 characters
+- `status`: Must be `todo`, `in_progress`, or `done`
+- `priority`: Must be `low`, `medium`, `high`, or `urgent`
+- `category`: Must be a valid category ID or null
+- `due_date`: Must be ISO 8601 datetime string or null
 
 ---
 
@@ -400,39 +376,32 @@ Authorization: Bearer <access_token>
 
 Update an existing task.
 
-**Endpoint:** `PUT /tasks/{task_id}`
+**Endpoint:** `PATCH /tasks/{id}/`
 
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
+**Permission:** Authenticated (own tasks only)
 
-**Request Body:**
+**Request Body:** (all fields optional)
 ```json
 {
-  "title": "Updated task title",
-  "status": "completed",
-  "priority": "medium"
+  "title": "Updated title",
+  "status": "done",
+  "priority": "urgent"
 }
 ```
 
 **Response:** `200 OK`
 ```json
 {
-  "message": "Task updated successfully",
-  "task": {
-    "id": 1,
-    "title": "Updated task title",
-    "status": "completed",
-    "priority": "medium",
-    "completed_at": "2024-01-03T10:00:00"
-  }
+  "id": 1,
+  "title": "Updated title",
+  "status": "done",
+  "priority": "urgent",
+  "completed_at": "2024-01-03T10:00:00Z",
+  ...
 }
 ```
 
-**Error Responses:**
-- `404 Not Found` - Task not found
-- `400 Bad Request` - Invalid data
+**Note:** When status changes to `done`, `completed_at` is automatically set.
 
 ---
 
@@ -440,116 +409,126 @@ Authorization: Bearer <access_token>
 
 Delete a task.
 
-**Endpoint:** `DELETE /tasks/{task_id}`
+**Endpoint:** `DELETE /tasks/{id}/`
 
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
+**Permission:** Authenticated (own tasks only)
 
-**Response:** `200 OK`
-```json
-{
-  "message": "Task deleted successfully"
-}
-```
-
-**Error Responses:**
-- `404 Not Found` - Task not found
+**Response:** `204 No Content`
 
 ---
 
-### Get Tags
+### Get Task Statistics
 
-Retrieve all available tags.
+Get statistics about user's tasks.
 
-**Endpoint:** `GET /tasks/tags`
+**Endpoint:** `GET /tasks/statistics/`
 
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
+**Permission:** Authenticated
 
 **Response:** `200 OK`
 ```json
 {
-  "tags": [
-    {
-      "id": 1,
-      "name": "work",
-      "color": "#3B82F6",
-      "created_at": "2024-01-01T00:00:00"
-    },
-    {
-      "id": 2,
-      "name": "important",
-      "color": "#EF4444",
-      "created_at": "2024-01-01T00:00:00"
-    }
-  ]
-}
-```
-
----
-
-## Analytics Endpoints
-
-### Dashboard Statistics
-
-Get dashboard statistics for the authenticated user.
-
-**Endpoint:** `GET /analytics/dashboard`
-
-**Headers:**
-```
-Authorization: Bearer <access_token>
-```
-
-**Response:** `200 OK`
-```json
-{
-  "total_tasks": 25,
-  "completed_this_week": 5,
-  "overdue_tasks": 2,
-  "status_distribution": {
-    "pending": 10,
+  "total": 25,
+  "by_status": {
+    "todo": 10,
     "in_progress": 8,
-    "completed": 6,
-    "cancelled": 1
+    "done": 7
   },
-  "priority_distribution": {
+  "by_priority": {
     "low": 5,
     "medium": 12,
     "high": 6,
     "urgent": 2
-  }
+  },
+  "overdue": 3
 }
 ```
 
 ---
 
-### Productivity Metrics
+### Get Overdue Tasks
 
-Get productivity statistics over time.
+Get all overdue tasks.
 
-**Endpoint:** `GET /analytics/productivity`
+**Endpoint:** `GET /tasks/overdue/`
 
-**Headers:**
+**Permission:** Authenticated
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "title": "Overdue task",
+    "status": "in_progress",
+    "priority": "high",
+    "due_date": "2023-12-01T23:59:59Z",
+    "is_overdue": true,
+    ...
+  }
+]
 ```
-Authorization: Bearer <access_token>
+
+---
+
+### Add Comment to Task
+
+Add a comment to a task.
+
+**Endpoint:** `POST /tasks/{id}/add_comment/`
+
+**Permission:** Authenticated (own tasks only)
+
+**Request Body:**
+```json
+{
+  "text": "This is a comment"
+}
 ```
+
+**Response:** `201 Created`
+```json
+{
+  "id": 1,
+  "task": 1,
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "full_name": "John Doe"
+  },
+  "text": "This is a comment",
+  "created_at": "2024-01-03T10:00:00Z",
+  "updated_at": "2024-01-03T10:00:00Z"
+}
+```
+
+---
+
+## Category Endpoints
+
+### List Categories
+
+Get all categories.
+
+**Endpoint:** `GET /tasks/categories/`
+
+**Permission:** Authenticated
 
 **Response:** `200 OK`
 ```json
 {
-  "daily_completed": [
+  "count": 5,
+  "next": null,
+  "previous": null,
+  "results": [
     {
-      "date": "2024-01-01",
-      "count": 3
-    },
-    {
-      "date": "2024-01-02",
-      "count": 5
+      "id": 1,
+      "name": "Work",
+      "description": "Work-related tasks",
+      "color": "#3B82F6",
+      "task_count": 15,
+      "created_at": "2024-01-01T10:00:00Z",
+      "updated_at": "2024-01-01T10:00:00Z"
     }
   ]
 }
@@ -557,71 +536,115 @@ Authorization: Bearer <access_token>
 
 ---
 
-## WebSocket Events
+### Create Category
 
-Connect to WebSocket for real-time updates:
+Create a new category.
 
-```javascript
-const socket = io('http://localhost:5000', {
-  auth: {
-    token: 'your-access-token'
-  }
-})
+**Endpoint:** `POST /tasks/categories/`
+
+**Permission:** Authenticated
+
+**Request Body:**
+```json
+{
+  "name": "Personal",
+  "description": "Personal tasks",
+  "color": "#10B981"
+}
 ```
 
-### Events
-
-**task_created**
-Emitted when a new task is created.
-
-**task_updated**
-Emitted when a task is updated.
-
-**task_deleted**
-Emitted when a task is deleted.
+**Response:** `201 Created`
+```json
+{
+  "id": 2,
+  "name": "Personal",
+  "description": "Personal tasks",
+  "color": "#10B981",
+  "task_count": 0,
+  "created_at": "2024-01-03T10:00:00Z",
+  "updated_at": "2024-01-03T10:00:00Z"
+}
+```
 
 ---
 
 ## Error Responses
 
-All endpoints may return the following error responses:
+### 400 Bad Request
 
-**400 Bad Request**
 ```json
 {
-  "error": "Bad request",
-  "message": "Detailed error message"
+  "error": true,
+  "message": "Validation error",
+  "status_code": 400,
+  "details": {
+    "email": ["This field is required."],
+    "password": ["This password is too short."]
+  }
 }
 ```
 
-**401 Unauthorized**
+### 401 Unauthorized
+
 ```json
 {
-  "error": "Unauthorized",
-  "message": "Invalid or missing token"
+  "error": true,
+  "message": "Authentication credentials were not provided.",
+  "status_code": 401
 }
 ```
 
-**403 Forbidden**
+### 403 Forbidden
+
 ```json
 {
-  "error": "Forbidden",
-  "message": "Insufficient permissions"
+  "error": true,
+  "message": "You do not have permission to perform this action.",
+  "status_code": 403
 }
 ```
 
-**404 Not Found**
+### 404 Not Found
+
 ```json
 {
-  "error": "Not found",
-  "message": "Resource not found"
+  "error": true,
+  "message": "Not found.",
+  "status_code": 404
 }
 ```
 
-**500 Internal Server Error**
+### 500 Internal Server Error
+
 ```json
 {
-  "error": "Internal server error",
-  "message": "An unexpected error occurred"
+  "error": true,
+  "message": "An internal server error occurred.",
+  "status_code": 500
 }
 ```
+
+---
+
+## Rate Limiting
+
+- **Unauthenticated requests:** 100 requests/hour
+- **Authenticated requests:** 1000 requests/hour
+
+Rate limit headers:
+```
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1640995200
+```
+
+---
+
+## Interactive API Documentation
+
+Visit the following URLs for interactive API documentation:
+
+- **Swagger UI:** http://localhost:8000/api/docs/
+- **OpenAPI Schema:** http://localhost:8000/api/schema/
+
+These provide a user-friendly interface to explore and test all API endpoints.

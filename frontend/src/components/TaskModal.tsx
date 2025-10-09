@@ -1,115 +1,110 @@
-import { useEffect } from 'react'
+'use client'
+
+/**
+ * Task Modal Component
+ * 
+ * Modal for creating and editing tasks
+ */
+
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import toast from 'react-hot-toast'
-import api from '@/lib/axios'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { Task } from '@/lib/types'
+import { useTaskStore } from '@/store/taskStore'
+import { categoriesAPI } from '@/lib/api'
 import { X } from 'lucide-react'
+
+const taskSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  status: z.enum(['todo', 'in_progress', 'done']),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']),
+  category: z.number().nullable().optional(),
+  due_date: z.string().optional(),
+})
+
+type TaskFormData = z.infer<typeof taskSchema>
 
 interface TaskModalProps {
   isOpen: boolean
   onClose: () => void
-  task?: any
+  task?: Task | null
 }
 
-interface TaskForm {
-  title: string
-  description: string
-  status: string
-  priority: string
-  due_date: string
-  tags: string
-}
-
-const TaskModal = ({ isOpen, onClose, task }: TaskModalProps) => {
-  const queryClient = useQueryClient()
+export default function TaskModal({ isOpen, onClose, task }: TaskModalProps) {
+  const { createTask, updateTask } = useTaskStore()
+  const [categories, setCategories] = useState<any[]>([])
+  const [error, setError] = useState('')
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
-  } = useForm<TaskForm>({
-    defaultValues: {
-      title: '',
-      description: '',
-      status: 'pending',
+    formState: { errors, isSubmitting },
+  } = useForm<TaskFormData>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: task ? {
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      category: task.category?.id || null,
+      due_date: task.due_date ? new Date(task.due_date).toISOString().slice(0, 16) : '',
+    } : {
+      status: 'todo',
       priority: 'medium',
-      due_date: '',
-      tags: '',
-    },
+    }
   })
 
   useEffect(() => {
-    if (task) {
-      reset({
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        priority: task.priority,
-        due_date: task.due_date ? task.due_date.split('T')[0] : '',
-        tags: task.tags?.join(', ') || '',
-      })
-    } else {
-      reset({
-        title: '',
-        description: '',
-        status: 'pending',
-        priority: 'medium',
-        due_date: '',
-        tags: '',
-      })
+    if (isOpen) {
+      fetchCategories()
+      if (task) {
+        reset({
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
+          category: task.category?.id || null,
+          due_date: task.due_date ? new Date(task.due_date).toISOString().slice(0, 16) : '',
+        })
+      }
     }
-  }, [task, reset])
+  }, [isOpen, task, reset])
 
-  const createMutation = useMutation({
-    mutationFn: (data: any) => api.post('/tasks', data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
-      toast.success('Task created successfully')
-      onClose()
+  const fetchCategories = async () => {
+    try {
+      const response = await categoriesAPI.list()
+      setCategories(response.results || response)
+    } catch (error) {
+      console.error('Failed to fetch categories:', error)
+    }
+  }
+
+  const onSubmit = async (data: TaskFormData) => {
+    try {
+      setError('')
+      if (task) {
+        await updateTask(task.id, data)
+      } else {
+        await createTask(data)
+      }
       reset()
-    },
-    onError: () => {
-      toast.error('Failed to create task')
-    },
-  })
-
-  const updateMutation = useMutation({
-    mutationFn: (data: any) => api.put(`/tasks/${task.id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] })
-      toast.success('Task updated successfully')
       onClose()
-    },
-    onError: () => {
-      toast.error('Failed to update task')
-    },
-  })
-
-  const onSubmit = (data: TaskForm) => {
-    const payload = {
-      ...data,
-      tags: data.tags.split(',').map(t => t.trim()).filter(t => t),
-      due_date: data.due_date || null,
-    }
-
-    if (task) {
-      updateMutation.mutate(payload)
-    } else {
-      createMutation.mutate(payload)
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to save task')
     }
   }
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-900">
-            {task ? 'Edit Task' : 'Create Task'}
+            {task ? 'Edit Task' : 'New Task'}
           </h2>
           <button
             onClick={onClose}
@@ -120,27 +115,35 @@ const TaskModal = ({ isOpen, onClose, task }: TaskModalProps) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
               Title *
             </label>
             <input
-              {...register('title', { required: 'Title is required' })}
+              {...register('title')}
               type="text"
+              id="title"
               className="input"
               placeholder="Enter task title"
             />
             {errors.title && (
-              <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+              <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
               Description
             </label>
             <textarea
               {...register('description')}
+              id="description"
               rows={4}
               className="input"
               placeholder="Enter task description"
@@ -149,22 +152,21 @@ const TaskModal = ({ isOpen, onClose, task }: TaskModalProps) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Status
+              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                Status *
               </label>
-              <select {...register('status')} className="input">
-                <option value="pending">Pending</option>
+              <select {...register('status')} id="status" className="input">
+                <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="done">Done</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Priority
+              <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
+                Priority *
               </label>
-              <select {...register('priority')} className="input">
+              <select {...register('priority')} id="priority" className="input">
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
@@ -173,47 +175,48 @@ const TaskModal = ({ isOpen, onClose, task }: TaskModalProps) => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Due Date
-            </label>
-            <input
-              {...register('due_date')}
-              type="date"
-              className="input"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                Category
+              </label>
+              <select {...register('category', { valueAsNumber: true })} id="category" className="input">
+                <option value="">None</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="due_date" className="block text-sm font-medium text-gray-700 mb-1">
+                Due Date
+              </label>
+              <input
+                {...register('due_date')}
+                type="datetime-local"
+                id="due_date"
+                className="input"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tags (comma separated)
-            </label>
-            <input
-              {...register('tags')}
-              type="text"
-              className="input"
-              placeholder="work, important, urgent"
-            />
-          </div>
-
-          <div className="flex space-x-3 pt-4">
-            <button
-              type="submit"
-              disabled={createMutation.isPending || updateMutation.isPending}
-              className="btn-primary flex-1"
-            >
-              {createMutation.isPending || updateMutation.isPending
-                ? 'Saving...'
-                : task
-                ? 'Update Task'
-                : 'Create Task'}
-            </button>
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary"
+              className="btn btn-secondary"
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Saving...' : task ? 'Update Task' : 'Create Task'}
             </button>
           </div>
         </form>
@@ -221,5 +224,3 @@ const TaskModal = ({ isOpen, onClose, task }: TaskModalProps) => {
     </div>
   )
 }
-
-export default TaskModal

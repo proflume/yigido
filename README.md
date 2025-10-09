@@ -1,401 +1,427 @@
-# TaskFlow - Full Stack Task Management Application
+# 🚀 Full-Stack Task Manager
 
-A modern, full-featured task management application built with Python Flask backend and React TypeScript frontend.
+> A comprehensive, production-ready task management application built with **Next.js 14** and **Django**, demonstrating modern software engineering best practices and system design principles.
 
-## 🚀 Features
+[![CI/CD](https://github.com/yourusername/task-manager/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/yourusername/task-manager/actions)
+[![codecov](https://codecov.io/gh/yourusername/task-manager/branch/main/graph/badge.svg)](https://codecov.io/gh/yourusername/task-manager)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### Backend (Python/Flask)
-- **RESTful API** with comprehensive endpoints
-- **JWT Authentication** with access and refresh tokens
-- **PostgreSQL Database** with SQLAlchemy ORM
-- **Redis Caching** for performance optimization
-- **WebSocket Support** for real-time updates via Socket.IO
-- **Database Migrations** with Alembic
-- **Input Validation** and error handling
-- **Comprehensive Testing** with pytest
-- **Security Best Practices** (password hashing, CORS, etc.)
+---
 
-### Frontend (React/TypeScript)
-- **Modern React 18** with TypeScript
-- **Tailwind CSS** for beautiful, responsive UI
-- **React Query** for efficient data fetching and caching
-- **Zustand** for state management
-- **React Router** for navigation
-- **React Hook Form + Zod** for form validation
-- **Socket.IO Client** for real-time features
-- **Recharts** for data visualization
-- **Hot Toast** for notifications
+## 📋 Table of Contents
 
-### Key Capabilities
-- User authentication and authorization
-- Task CRUD operations with filtering and search
-- Task prioritization and status tracking
-- Tag-based categorization
-- Real-time task updates
-- Analytics dashboard with productivity metrics
-- User profile management
-- Responsive design for all devices
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Quick Start](#quick-start)
+- [Architecture](#architecture)
+- [Learning Resources](#learning-resources)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 📋 Prerequisites
+---
 
-- Python 3.11+
-- Node.js 20+
-- PostgreSQL 16+
-- Redis 7+
-- Docker & Docker Compose (optional)
+## 🎯 Overview
 
-## 🛠️ Installation
+This project serves dual purposes:
 
-### Using Docker (Recommended)
+1. **Production Application**: A fully functional task management system with authentication, CRUD operations, real-time updates, and analytics.
 
-1. **Clone the repository**
+2. **Educational Resource**: A comprehensive guide to modern full-stack development, covering:
+   - Software engineering principles (SOLID, DRY, KISS)
+   - System design patterns
+   - API architecture
+   - Database modeling
+   - Authentication & Authorization
+   - Testing strategies
+   - DevOps & CI/CD
+   - Performance optimization
+   - Security best practices
+
+---
+
+## ✨ Features
+
+### 🔐 Authentication & User Management
+- JWT-based authentication
+- User registration and login
+- Profile management
+- Password change functionality
+- Secure password hashing
+
+### 📝 Task Management
+- Create, read, update, delete tasks
+- Task categories and priorities
+- Due dates with overdue tracking
+- Task status workflow (Todo → In Progress → Done)
+- Rich task descriptions
+- Search and filtering
+- Sorting and pagination
+
+### 📊 Analytics & Insights
+- Task statistics dashboard
+- Status breakdown
+- Priority distribution
+- Overdue task tracking
+- User productivity metrics
+
+### 💬 Collaboration
+- Comments on tasks
+- Task sharing (future feature)
+- Activity tracking (future feature)
+
+### 🎨 User Experience
+- Responsive design (mobile, tablet, desktop)
+- Modern, clean UI with Tailwind CSS
+- Real-time updates
+- Form validation
+- Error handling
+- Loading states
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Framework**: Django 4.2
+- **API**: Django REST Framework
+- **Database**: PostgreSQL 16
+- **Authentication**: JWT (djangorestframework-simplejwt)
+- **Testing**: Pytest
+- **Code Quality**: Black, Flake8, isort
+- **Documentation**: drf-spectacular (OpenAPI/Swagger)
+
+### Frontend
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: Zustand
+- **Forms**: React Hook Form + Zod
+- **HTTP Client**: Axios
+- **Testing**: Jest + React Testing Library
+
+### DevOps
+- **Containerization**: Docker & Docker Compose
+- **Web Server**: Nginx
+- **CI/CD**: GitHub Actions
+- **Monitoring**: Sentry (optional)
+- **Logging**: ELK Stack (optional)
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Docker** and **Docker Compose** (recommended)
+  OR
+- **Python 3.11+**, **Node.js 20+**, **PostgreSQL 16+**
+
+### Option 1: Docker (Recommended)
+
 ```bash
-git clone <repository-url>
-cd workspace
+# Clone the repository
+git clone https://github.com/yourusername/task-manager.git
+cd task-manager
+
+# Build and start services
+make build
+make up
+
+# Run migrations
+make migrate
+
+# Create superuser
+make createsuperuser
+
+# View logs
+make logs
 ```
 
-2. **Create environment files**
-```bash
-# Backend
-cp backend/.env.example backend/.env
-
-# Frontend
-cp frontend/.env.example frontend/.env
-```
-
-3. **Start all services**
-```bash
-docker-compose up -d
-```
-
-4. **Run database migrations**
-```bash
-docker-compose exec backend flask db upgrade
-```
-
-The application will be available at:
+**Access the application:**
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
-- API Documentation: http://localhost:5000/api
+- Backend API: http://localhost:8000/api/v1
+- API Docs: http://localhost:8000/api/docs
+- Admin: http://localhost:8000/admin
 
-### Manual Installation
+### Option 2: Local Development
 
-#### Backend Setup
-
-1. **Navigate to backend directory**
+**Backend:**
 ```bash
 cd backend
-```
 
-2. **Create virtual environment**
-```bash
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-3. **Install dependencies**
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-4. **Set up environment variables**
-```bash
+# Copy environment file
 cp .env.example .env
 # Edit .env with your configuration
+
+# Run migrations
+python manage.py migrate
+
+# Create superuser
+python manage.py createsuperuser
+
+# Start development server
+python manage.py runserver
 ```
 
-5. **Initialize database**
-```bash
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
-```
-
-6. **Run the backend**
-```bash
-python wsgi.py
-```
-
-#### Frontend Setup
-
-1. **Navigate to frontend directory**
+**Frontend:**
 ```bash
 cd frontend
-```
 
-2. **Install dependencies**
-```bash
+# Install dependencies
 npm install
-```
 
-3. **Set up environment variables**
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
+# Copy environment file
+cp .env.local.example .env.local
 
-4. **Run the frontend**
-```bash
+# Start development server
 npm run dev
 ```
 
-## 📚 API Documentation
+---
 
-### Authentication Endpoints
+## 🏗️ Architecture
 
-#### Register User
-```http
-POST /api/auth/register
-Content-Type: application/json
+### High-Level Architecture
 
+```
+┌─────────────┐         ┌─────────────┐         ┌─────────────┐
+│   Next.js   │ ──────→ │   Django    │ ──────→ │ PostgreSQL  │
+│  Frontend   │ ←────── │   Backend   │ ←────── │  Database   │
+└─────────────┘         └─────────────┘         └─────────────┘
+      │                        │
+      │                        │
+      ↓                        ↓
+  Tailwind CSS           Django REST Framework
+  Zustand Store          JWT Authentication
+  React Hook Form        Database ORM
+```
+
+### Project Structure
+
+```
+task-manager/
+├── backend/                    # Django backend
+│   ├── apps/                  # Django applications
+│   │   ├── core/             # Core utilities
+│   │   ├── users/            # User management
+│   │   └── tasks/            # Task management
+│   ├── config/               # Django settings
+│   ├── tests/                # Backend tests
+│   └── requirements.txt      # Python dependencies
+│
+├── frontend/                  # Next.js frontend
+│   ├── src/
+│   │   ├── app/             # Next.js App Router
+│   │   ├── components/      # React components
+│   │   ├── lib/             # Utilities & API
+│   │   └── store/           # State management
+│   └── package.json         # Node dependencies
+│
+├── docs/                      # Documentation
+│   ├── SOFTWARE_ENGINEERING.md
+│   ├── SYSTEM_DESIGN.md
+│   ├── API.md
+│   └── DEPLOYMENT.md
+│
+├── .github/workflows/        # CI/CD pipelines
+├── docker-compose.yml        # Development compose
+└── Makefile                  # Development commands
+```
+
+---
+
+## 📚 Learning Resources
+
+### Documentation
+
+1. **[Software Engineering Concepts](./docs/SOFTWARE_ENGINEERING.md)**
+   - SOLID Principles with examples
+   - Design Patterns (Factory, Observer, Strategy, etc.)
+   - Clean Architecture
+   - Code Quality (DRY, KISS, YAGNI)
+   - Testing Strategies
+
+2. **[System Design](./docs/SYSTEM_DESIGN.md)**
+   - Architecture patterns
+   - Database design & normalization
+   - RESTful API design
+   - Authentication & Authorization (JWT)
+   - Scalability considerations
+   - Performance optimization
+   - Security best practices
+
+3. **[API Documentation](./docs/API.md)**
+   - Complete API reference
+   - Request/Response examples
+   - Authentication flows
+   - Error handling
+
+4. **[Deployment Guide](./docs/DEPLOYMENT.md)**
+   - Production checklist
+   - Docker deployment
+   - Cloud deployment (AWS, DigitalOcean, Heroku)
+   - CI/CD pipelines
+   - Monitoring & logging
+
+### Key Concepts Demonstrated
+
+#### Backend (Django)
+- Custom User model
+- ViewSets and Serializers
+- JWT authentication
+- Permission classes
+- Query optimization (select_related, prefetch_related)
+- Custom actions
+- Filtering and pagination
+- Admin customization
+
+#### Frontend (Next.js)
+- App Router architecture
+- Server & Client Components
+- TypeScript type safety
+- Form handling with validation
+- State management with Zustand
+- API integration with Axios
+- Responsive design
+- Error boundaries
+
+#### DevOps
+- Docker multi-stage builds
+- Docker Compose orchestration
+- Nginx reverse proxy
+- CI/CD with GitHub Actions
+- Automated testing
+- Security scanning
+
+---
+
+## 📖 API Documentation
+
+### Authentication
+
+```bash
+# Register
+POST /api/v1/auth/users/
 {
   "email": "user@example.com",
-  "username": "johndoe",
-  "password": "SecurePass123",
+  "password": "securepass123",
+  "password_confirm": "securepass123",
   "first_name": "John",
   "last_name": "Doe"
 }
-```
 
-#### Login
-```http
-POST /api/auth/login
-Content-Type: application/json
-
+# Login
+POST /api/v1/auth/token/
 {
-  "username": "johndoe",
-  "password": "SecurePass123"
+  "email": "user@example.com",
+  "password": "securepass123"
 }
+# Returns: { "access": "...", "refresh": "..." }
 ```
 
-#### Refresh Token
-```http
-POST /api/auth/refresh
-Authorization: Bearer <refresh_token>
-```
+### Tasks
 
-#### Get Current User
-```http
-GET /api/auth/me
-Authorization: Bearer <access_token>
-```
+```bash
+# List tasks
+GET /api/v1/tasks/?status=in_progress&priority=high
 
-### Task Endpoints
-
-#### Get All Tasks
-```http
-GET /api/tasks?page=1&per_page=20&status=pending&priority=high&search=query
-Authorization: Bearer <access_token>
-```
-
-#### Create Task
-```http
-POST /api/tasks
-Authorization: Bearer <access_token>
-Content-Type: application/json
-
+# Create task
+POST /api/v1/tasks/
 {
   "title": "Complete project",
-  "description": "Finish the full stack application",
-  "status": "in_progress",
+  "description": "Finish the documentation",
   "priority": "high",
-  "due_date": "2024-12-31T23:59:59Z",
-  "tags": ["work", "important"]
+  "due_date": "2024-12-31T23:59:59Z"
 }
+
+# Get statistics
+GET /api/v1/tasks/statistics/
 ```
 
-#### Update Task
-```http
-PUT /api/tasks/{task_id}
-Authorization: Bearer <access_token>
-Content-Type: application/json
+**Interactive API Docs**: http://localhost:8000/api/docs/
 
-{
-  "title": "Updated task title",
-  "status": "completed"
-}
-```
+Full API documentation: [docs/API.md](./docs/API.md)
 
-#### Delete Task
-```http
-DELETE /api/tasks/{task_id}
-Authorization: Bearer <access_token>
-```
-
-### Analytics Endpoints
-
-#### Dashboard Statistics
-```http
-GET /api/analytics/dashboard
-Authorization: Bearer <access_token>
-```
-
-#### Productivity Metrics
-```http
-GET /api/analytics/productivity
-Authorization: Bearer <access_token>
-```
+---
 
 ## 🧪 Testing
 
-### Backend Tests
 ```bash
-cd backend
-pytest
-pytest --cov=app tests/  # With coverage
+# Backend tests
+make test-backend
+# OR
+cd backend && pytest --cov=apps
+
+# Frontend tests
+make test-frontend
+# OR
+cd frontend && npm test
+
+# Lint
+make lint-backend
+make lint-frontend
 ```
 
-### Frontend Tests
-```bash
-cd frontend
-npm test
-npm run test:coverage  # With coverage
-```
+---
 
-## 🏗️ Project Structure
+## 🔒 Security
 
-```
-workspace/
-├── backend/
-│   ├── app/
-│   │   ├── __init__.py          # Flask app factory
-│   │   ├── models/              # Database models
-│   │   │   ├── user.py
-│   │   │   └── task.py
-│   │   ├── routes/              # API endpoints
-│   │   │   ├── auth.py
-│   │   │   ├── users.py
-│   │   │   ├── tasks.py
-│   │   │   └── analytics.py
-│   │   └── utils/               # Utilities
-│   │       ├── validators.py
-│   │       └── error_handlers.py
-│   ├── tests/                   # Test suite
-│   ├── migrations/              # Database migrations
-│   ├── wsgi.py                  # Application entry point
-│   ├── requirements.txt         # Python dependencies
-│   └── Dockerfile
-├── frontend/
-│   ├── src/
-│   │   ├── components/          # React components
-│   │   │   ├── Layout.tsx
-│   │   │   └── TaskModal.tsx
-│   │   ├── pages/               # Page components
-│   │   │   ├── Login.tsx
-│   │   │   ├── Register.tsx
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── Tasks.tsx
-│   │   │   ├── Analytics.tsx
-│   │   │   └── Profile.tsx
-│   │   ├── stores/              # State management
-│   │   │   └── authStore.ts
-│   │   ├── lib/                 # Utilities
-│   │   │   ├── axios.ts
-│   │   │   ├── socket.ts
-│   │   │   └── utils.ts
-│   │   ├── App.tsx              # Main app component
-│   │   ├── main.tsx             # Entry point
-│   │   └── index.css            # Global styles
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── tailwind.config.js
-│   ├── vite.config.ts
-│   └── Dockerfile
-├── docker-compose.yml           # Docker orchestration
-└── README.md
-```
+- JWT token-based authentication
+- Password hashing with PBKDF2
+- CORS configuration
+- CSRF protection
+- SQL injection prevention (ORM)
+- XSS protection
+- Security headers in production
+- Input validation
+- Rate limiting (production)
 
-## 🔧 Configuration
-
-### Backend Environment Variables
-
-```env
-FLASK_APP=wsgi.py
-FLASK_ENV=development
-SECRET_KEY=your-secret-key-here
-JWT_SECRET_KEY=your-jwt-secret-key-here
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/fullstack_app
-REDIS_URL=redis://localhost:6379/0
-UPLOAD_FOLDER=/tmp/uploads
-```
-
-### Frontend Environment Variables
-
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
-```
+---
 
 ## 🚢 Deployment
 
-### Production Deployment Steps
+### Quick Deploy with Docker
 
-1. **Update environment variables** for production
-   - Set strong SECRET_KEY and JWT_SECRET_KEY
-   - Update database and Redis URLs
-   - Set FLASK_ENV=production
-
-2. **Build frontend for production**
 ```bash
-cd frontend
-npm run build
+# Production deployment
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-3. **Use production-ready WSGI server**
-```bash
-gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
-```
+### Cloud Platforms
 
-4. **Set up reverse proxy** (nginx)
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
+- **AWS**: EC2 + RDS + S3
+- **DigitalOcean**: App Platform
+- **Heroku**: Backend + Vercel for Frontend
+- **Railway**: Full-stack deployment
 
-    location / {
-        proxy_pass http://localhost:3000;
-    }
+See [Deployment Guide](./docs/DEPLOYMENT.md) for detailed instructions.
 
-    location /api {
-        proxy_pass http://localhost:5000;
-    }
+---
 
-    location /socket.io {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}
-```
+## 📊 Performance
 
-5. **Enable HTTPS** with Let's Encrypt
-```bash
-certbot --nginx -d your-domain.com
-```
+- Database query optimization with select_related/prefetch_related
+- Redis caching (optional)
+- CDN for static files
+- Image optimization (Next.js)
+- Code splitting and lazy loading
+- Gzip compression
+- Database indexing
 
-## 🔒 Security Features
-
-- Password hashing with Werkzeug
-- JWT-based authentication
-- Token refresh mechanism
-- Token blacklisting on logout
-- CORS configuration
-- SQL injection prevention via ORM
-- Input validation
-- Rate limiting (recommended to add)
-- HTTPS in production
-
-## 📊 Performance Optimizations
-
-- Redis caching for analytics
-- Database query optimization with indexes
-- React Query for client-side caching
-- Lazy loading and code splitting
-- Connection pooling for database
-- Pagination for large datasets
+---
 
 ## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md).
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -403,25 +429,45 @@ certbot --nginx -d your-domain.com
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+---
+
 ## 📝 License
 
-This project is licensed under the MIT License.
-
-## 👥 Authors
-
-- Your Name - Initial work
-
-## 🙏 Acknowledgments
-
-- Flask documentation
-- React documentation
-- Tailwind CSS
-- All open-source contributors
-
-## 📞 Support
-
-For support, email support@example.com or open an issue in the repository.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Built with ❤️ using Python, Flask, React, and TypeScript**
+## 🙏 Acknowledgments
+
+- Django community for excellent framework and documentation
+- Next.js team for the amazing React framework
+- All open-source contributors whose libraries made this possible
+
+---
+
+## 📧 Contact
+
+- **Project Link**: https://github.com/yourusername/task-manager
+- **Documentation**: https://yourusername.github.io/task-manager
+- **Issues**: https://github.com/yourusername/task-manager/issues
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Real-time updates with WebSockets
+- [ ] Team collaboration features
+- [ ] File attachments
+- [ ] Task templates
+- [ ] Mobile app (React Native)
+- [ ] Email notifications
+- [ ] Calendar integration
+- [ ] Advanced analytics
+- [ ] Export/Import functionality
+- [ ] Dark mode
+
+---
+
+**Built with ❤️ for learning and teaching modern full-stack development**
+
+⭐ If you find this project helpful, please give it a star!
